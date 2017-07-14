@@ -1,7 +1,10 @@
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api, reqparse
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
-from security import get_access_token
+"""
+Main file for this project.
+python app.py
+"""
+from flask import Flask
+from flask_restful import Api
+from flask_jwt_extended import JWTManager
 
 from resources.account_authentication import AccountAuthentication
 from resources.oauth_authentication import OAuthAuthentication
