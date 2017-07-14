@@ -10,15 +10,19 @@ app.secret_key = 'SECRET'
 # Setup the Flask-JWT-Extended extension
 jwt = JWTManager(app)
 
-# Provide a method to create access tokens. The create_access_token()
-# function is used to actually generate the token
-
 class AccountAuthentication(Resource):
+    """
+    This Resource represents a classic email and password
+    login authentication route.
+    """
     account_parser = reqparse.RequestParser()
     account_parser.add_argument('email', type=str, required=True, help='Username is required.')
     account_parser.add_argument('password', type=str, required=True, help='Password is required.')
 
     def post(self):
+        """
+        We POST our authentication request to /auth, with an email and password defined.
+        """
         args = self.account_parser.parse_args()
 
         if args['email'] != 'test' or args['password'] != 'test':
@@ -27,6 +31,14 @@ class AccountAuthentication(Resource):
         return get_access_token('account', args['email'])
 
 class OAuthAuthentication(Resource):
+    """
+    This Resource represents authentication provided via a third party application
+    such as Facebook or Google; in this instance we are only provided with a token issued
+    by the third party and the provider the have authenticated with.
+
+    We will need to check that the user has been registered before, and if not should be
+    registered here; so this ultimately becomes both a registration and log in end point.
+    """
     VALID_GRANT_TYPES = ('facebook',)
 
     oauth_parser = reqparse.RequestParser()
@@ -35,6 +47,9 @@ class OAuthAuthentication(Resource):
     # maybe user id is required too?
 
     def post(self):
+        """
+        We POST our authentication request to /oauth, with a grant type and identifier defined.
+        """
         args = self.oauth_parser.parse_args()
         is_valid_grant = args['grantType'] in self.VALID_GRANT_TYPES
 
@@ -44,8 +59,17 @@ class OAuthAuthentication(Resource):
         return get_access_token(args['grantType'], args['identifier']), 200
 
 class Protected(Resource):
+    """
+    Demo Resource to test against, this simply shows how to protect a Flask-RESTful endpoint with
+    Flask-JWT-Extended.
+    """
     @jwt_required
     def get(self):
+        """
+        Get details about the currently authenticated user.
+
+        This will show details based on the JWT token provided.
+        """
         current_user = get_jwt_identity()
         return {'helloFrom': current_user}
 
